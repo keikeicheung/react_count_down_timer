@@ -1,0 +1,20 @@
+{
+    "name": "Count Down Timer",
+    "short_name": "Timer",
+    "offline_enabled": true,
+    "version": "1.0.4",
+    "description": "* A simple customizable count down timer for Chrome *",
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    },
+    "browser_action": {
+        "default_icon": "heart.png"
+    },
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "permissions": ["tabs"],
+    "manifest_version": 2
+}
