@@ -12,8 +12,12 @@ var SetTimeForm = React.createClass({
         return (
             <form>
                 <h2>Please input time</h2>
-                <DateTimeField />
-                <label><input type="checkbox" className="excludeWeekendsCheckBox" /> Exclude Weekends</label>
+                <div className="col-sm-12">
+                    <DateTimeField inputFormat="YYYY-MM-DD HH:mm:ss"/>
+                    <span>
+                        <label><input type="checkbox" className="excludeWeekendsCheckBox" /> Exclude Weekends</label>
+                    </span>
+                </div>
             </form>
         );
     }
@@ -166,8 +170,8 @@ function updateClock(clock) {
     if (milisec_diff > 0) {
         clock.FlipClock(milisec_diff / 1000, {
             clockFace: 'DailyCounter',
-            countdown: true
-            //language: window.navigator.userLanguage || window.navigator.language
+            countdown: true,
+            language: window.navigator.userLanguage || window.navigator.language
         });
     }
 }
