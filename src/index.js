@@ -3,6 +3,14 @@ var React = require('react'),
     $ = require("imports?jQuery=jquery!exports?jQuery!flipclock"),
     DateTimeField = require('imports?jQuery=jquery!exports?DateTimeField!react-bootstrap-datetimepicker');
 
+window.onfocus = function() {
+    updateClock($('.clock'));
+};
+
+window.onblur = function() {
+    $('.clock').stop();
+};
+
 var SetTimeForm = React.createClass({
     componentDidMount: function () {
         document.getElementsByClassName("form-control")[0].value = this.props.selectedTime;
