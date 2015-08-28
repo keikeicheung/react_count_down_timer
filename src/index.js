@@ -38,18 +38,22 @@ var Timer = React.createClass({
         };
     },
     save: function() {
-        this.setState({editing: !this.state.editing});
-        setCookie("selectedTime",document.getElementsByClassName("form-control")[0].value);
-        setCookie("excludeWeekends", document.getElementsByClassName("excludeWeekendsCheckBox")[0].checked.toString());
-        updateClock($('.clock'));
+        if (this.state.editing) {
+            this.setState({editing: false});
+            setCookie("selectedTime", document.getElementsByClassName("form-control")[0].value);
+            setCookie("excludeWeekends", document.getElementsByClassName("excludeWeekendsCheckBox")[0].checked.toString());
+            updateClock($('.clock'));
+        }
     },
     cancel: function() {
-        this.setState({editing: !this.state.editing});
-        updateClock($('.clock'));
+        if (this.state.editing) {
+            this.setState({editing: false});
+            updateClock($('.clock'));
+        }
     },
     edit: function() {
         if (!this.state.editing)
-            this.setState({editing: !this.state.editing});
+            this.setState({editing: true});
     },
     componentDidMount: function () {
         updateClock($('.clock'));
@@ -71,6 +75,7 @@ var Timer = React.createClass({
         return (
             <div className="timer" onClick={this.edit}>
                 <div className="clock"/>
+                <img className="byebye-image" hidden/>
                 {element}
             </div>
         );
@@ -98,12 +103,12 @@ React.render(
 );
 
 
-function currentDate() {
+function getStartDate(excludeWeekends) {
     var currentDate = new Date();
-    while (currentDate.getDay == 6 || currentDate.getDay == 0) {
+    while (isWeekend(currentDate) && excludeWeekends) {
         currentDate = new Date(new Date(currentDate.getFullYear(),currentDate.getMonth(), currentDate.getDate()).getTime() - oneDayInMillis());
     }
-    return currentDate;
+    return new Date(currentDate.getTime() + oneDayInMillis());
 }
 
 function getSelectedTime() {
@@ -144,7 +149,7 @@ function calculateWeekendDays(fromDate, toDate){
     var weekendDaysCount = 0;
 
     while(fromDate < toDate){
-        if (fromDate.getDay() == 0 || fromDate.getDay() == 6){
+        if (isWeekend(fromDate)){
             ++weekendDaysCount ;
         }
         fromDate = new Date(fromDate.getTime() + oneDayInMillis());
@@ -158,9 +163,9 @@ function oneDayInMillis() {
 
 
 function updateClock(clock) {
-    var now = currentDate();
-    var endTime = getSelectedTime();
     var excludeWeekends = getExcludeWeekends();
+    var now = getStartDate(excludeWeekends);
+    var endTime = getSelectedTime();
     var title = getTitle();
     var date = new Date(endTime);
     var milisec_diff = date.getTime() - now.getTime();
@@ -176,10 +181,27 @@ function updateClock(clock) {
         clock.addClass('threeDayDigits');
     }
     if (milisec_diff > 0) {
-        clock.FlipClock(milisec_diff / 1000, {
-            clockFace: 'DailyCounter',
-            countdown: true,
-            language: window.navigator.userLanguage || window.navigator.language
-        });
+        if (!isWeekend(new Date()) || !excludeWeekends) {
+            clock.FlipClock(milisec_diff / 1000, {
+                clockFace: 'DailyCounter',
+                countdown: true,
+                language: window.navigator.userLanguage || window.navigator.language,
+                autoStart: true
+            });
+        } else {
+            clock.FlipClock(milisec_diff / 1000, {
+                clockFace: 'DailyCounter',
+                countdown: true,
+                language: window.navigator.userLanguage || window.navigator.language,
+                autoStart: false
+            });
+        }
+    } else {
+        clock.hide();
+        document.getElementById("byebyeGif").show();
     }
+}
+
+function isWeekend(date) {
+    return date.getDay() == 6 || date.getDay() == 0;
 }
