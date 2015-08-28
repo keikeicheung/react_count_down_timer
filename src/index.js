@@ -108,7 +108,9 @@ function getStartDate(excludeWeekends) {
     while (isWeekend(currentDate) && excludeWeekends) {
         currentDate = new Date(new Date(currentDate.getFullYear(),currentDate.getMonth(), currentDate.getDate()).getTime() - oneDayInMillis());
     }
-    return new Date(currentDate.getTime() + oneDayInMillis());
+    if (excludeWeekends)
+        currentDate = new Date(currentDate.getTime() + oneDayInMillis());
+    return currentDate;
 }
 
 function getSelectedTime() {
