@@ -2,7 +2,7 @@
     "name": "Count Down Timer",
     "short_name": "Timer",
     "offline_enabled": true,
-    "version": "1.0.7",
+    "version": "1.0.10",
     "description": "* A simple customizable count down timer for Chrome *",
     "icons": {
         "16": "icon.png",

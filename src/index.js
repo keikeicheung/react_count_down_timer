@@ -60,22 +60,26 @@ var Timer = React.createClass({
     },
     render: function () {
         var element;
+        var clock = $('.clock');
         if (this.state.editing) {
             var selectedTime = getSelectedTime();
             var excludeWeekends = getExcludeWeekends().toString();
             element = <div>
                 <SetTimeForm selectedTime={selectedTime} excludeWeekends={excludeWeekends}/>
                 <button className="btn btn-primary" onClick={this.save}>Save</button>     <button className="btn btn-info" onClick={this.cancel}>Cancel</button></div>;
-            $('.clock').hide();
+            clock.hide();
+            $('.byebyeImage').hide();
         } else {
-            updateClock($('.clock'));
-            $('.clock').show();
+            clock.show();
+            updateClock(clock);
         }
 
         return (
             <div className="timer" onClick={this.edit}>
                 <div className="clock"/>
-                <img className="byebye-image" hidden/>
+                <div className="byebyeImage" hidden>
+                    <img src="../resources/percy_pig.jpg" />
+                </div>
                 {element}
             </div>
         );
@@ -105,16 +109,17 @@ React.render(
 
 function getStartDate(excludeWeekends) {
     var currentDate = new Date();
-    while (isWeekend(currentDate) && excludeWeekends) {
-        currentDate = new Date(new Date(currentDate.getFullYear(),currentDate.getMonth(), currentDate.getDate()).getTime() - oneDayInMillis());
-    }
-    if (excludeWeekends)
+    if (isWeekend(currentDate) && excludeWeekends) {
+        while (isWeekend(currentDate) && excludeWeekends) {
+            currentDate = new Date(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()).getTime() - oneDayInMillis());
+        }
         currentDate = new Date(currentDate.getTime() + oneDayInMillis());
+    }
     return currentDate;
 }
 
 function getSelectedTime() {
-    var endTime = "2015-09-01 18:00:00";
+    var endTime = "2015-12-25 00:00:00";
     var x = getCookie("selectedTime");
     if (x != "") {
         endTime = x;
@@ -163,6 +168,7 @@ function oneDayInMillis() {
     return 1000 * 60 * 60 * 24;
 }
 
+var clockStopped = false;
 
 function updateClock(clock) {
     var excludeWeekends = getExcludeWeekends();
@@ -176,31 +182,28 @@ function updateClock(clock) {
         weekendDays = calculateWeekendDays(now, date);
     }
     milisec_diff = milisec_diff - ((weekendDays * oneDayInMillis()));
-    var days = Math.floor(milisec_diff / oneDayInMillis());
-    if (days < 100) {
-        clock.addClass('twoDayDigits');
-    } else {
-        clock.addClass('threeDayDigits');
-    }
     if (milisec_diff > 0) {
+        clock = clock.FlipClock(milisec_diff / 1000,{
+            clockFace: 'DailyCounter',
+            countdown: true,
+            language: window.navigator.userLanguage || window.navigator.language,
+            autoStart: false,
+            callbacks: {
+                interval: function () {
+                    var time = clock.getTime().time;
+                    if (time == 0) {
+                        $('.clock').hide();
+                        $('.byebyeImage').show();
+                    }
+                }
+            }
+        });
         if (!isWeekend(new Date()) || !excludeWeekends) {
-            clock.FlipClock(milisec_diff / 1000, {
-                clockFace: 'DailyCounter',
-                countdown: true,
-                language: window.navigator.userLanguage || window.navigator.language,
-                autoStart: true
-            });
-        } else {
-            clock.FlipClock(milisec_diff / 1000, {
-                clockFace: 'DailyCounter',
-                countdown: true,
-                language: window.navigator.userLanguage || window.navigator.language,
-                autoStart: false
-            });
+            clock.start();
         }
     } else {
         clock.hide();
-        document.getElementById("byebyeGif").show();
+        $('.byebyeImage').show();
     }
 }
 
