@@ -40,6 +40,7 @@ var Timer = React.createClass({
     save: function() {
         if (this.state.editing) {
             this.setState({editing: false});
+            setCookie("title", document.getElementsByClassName("titleInput")[0].value);
             setCookie("selectedTime", document.getElementsByClassName("form-control")[0].value);
             setCookie("excludeWeekends", document.getElementsByClassName("excludeWeekendsCheckBox")[0].checked.toString());
             updateClock($('.clock'));
@@ -61,21 +62,27 @@ var Timer = React.createClass({
     render: function () {
         var element;
         var clock = $('.clock');
+        var title = $('.title');
         if (this.state.editing) {
             var selectedTime = getSelectedTime();
             var excludeWeekends = getExcludeWeekends().toString();
             element = <div>
+                <input className="titleInput" type="text" defaultValue={getTitle()} />
                 <SetTimeForm selectedTime={selectedTime} excludeWeekends={excludeWeekends}/>
                 <button className="btn btn-primary" onClick={this.save}>Save</button>     <button className="btn btn-info" onClick={this.cancel}>Cancel</button></div>;
+
+            title.hide();
             clock.hide();
             $('.byebyeImage').hide();
         } else {
+            title.show();
             clock.show();
             updateClock(clock);
         }
 
         return (
             <div className="timer" onClick={this.edit}>
+                <h1 className="title">{getTitle()}</h1>
                 <div className="clock"/>
                 <div className="byebyeImage" hidden>
                     <img src="../resources/percy_pig.jpg" />
@@ -85,6 +92,7 @@ var Timer = React.createClass({
         );
     }
 });
+
 var CenterBox = React.createClass({
     render: function () {
         return (
@@ -133,7 +141,12 @@ function getExcludeWeekends() {
 }
 
 function getTitle() {
-    return getCookie("title");
+    var title = "Santa Claus is coming to town";
+    var x = getCookie("title");
+    if (x != "") {
+        title = x;
+    }
+    return title;
 }
 function setCookie(cname,cvalue) {
     document.cookie = cname+"="+cvalue+"; ";
